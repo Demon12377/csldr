@@ -5,6 +5,7 @@
 #define HIDEHUD_CROSSHAIR (1 << 6)
 
 static cvar_t *xhair_enable;
+static cvar_t *xhair_res_scale;
 
 static cvar_t *xhair_gap;
 static cvar_t *xhair_size;
@@ -92,6 +93,7 @@ void Hk_FillRGBABlend(int x, int y, int w, int h, int r, int g, int b, int a)
 void HudInit(void)
 {
 	CVAR_ARCHIVE_FAST(xhair_enable, 0);
+	CVAR_ARCHIVE_FAST(xhair_res_scale, 1);
 
 	CVAR_ARCHIVE_FAST(xhair_gap, 0);
 	CVAR_ARCHIVE_FAST(xhair_size, 4);
@@ -320,13 +322,13 @@ float GetCrosshairGap(int weaponId)
 		break;
 
 	default:
-		minGap = 4;
+		minGap = 3;
 		deltaGap = 3;
 		break;
 	}
 
 	if (!xhair_gap_useweaponvalue->value)
-		minGap = 4;
+		minGap = 3;
 
 	float baseMinGap = minGap;
 	float absMinGap = baseMinGap * 0.5f;
@@ -423,9 +425,19 @@ static void DrawCrosshair(int weaponId)
 	center_x = screenWidth / 2;
 	center_y = screenHeight / 2;
 
-	gap = ScaleForRes(GetCrosshairGap(weaponId), screenHeight);
-	length = ScaleForRes(xhair_size->value, screenHeight);
-	thickness = ScaleForRes(xhair_thick->value, screenHeight);
+	if (xhair_res_scale->value)
+	{
+		gap = ScaleForRes(GetCrosshairGap(weaponId), screenHeight);
+		length = ScaleForRes(xhair_size->value, screenHeight);
+		thickness = ScaleForRes(xhair_thick->value, screenHeight);
+	}
+	else
+	{
+		gap = Rint(GetCrosshairGap(weaponId));
+		length = Rint(xhair_size->value);
+		thickness = Rint(xhair_thick->value);
+	}
+
 	thickness = MAX(1, thickness);
 
 	inner.left = (center_x - gap - thickness / 2);
