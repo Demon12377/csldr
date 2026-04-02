@@ -25,6 +25,8 @@ static cvar_t *viewmodel_lag_style;
 static cvar_t *viewmodel_lag_scale;
 static cvar_t *viewmodel_lag_speed;
 
+static cvar_t *xhair_no_recoil;
+
 cvar_t *fov_horplus;
 cvar_t *fov_lerp;
 
@@ -59,6 +61,8 @@ void ViewInit(void)
 	CVAR_ARCHIVE_FAST(viewmodel_lag_style, 0);
 	CVAR_ARCHIVE_FAST(viewmodel_lag_scale, 1.0);
 	CVAR_ARCHIVE_FAST(viewmodel_lag_speed, 8.0);
+
+	CVAR_ARCHIVE_FAST(xhair_no_recoil, 0);
 
 	// hl 25th anniversary update added gl_widescreen_yfov which is essentially
 	// the same thing, keep fov_horplus around for older clients though
@@ -472,6 +476,11 @@ void Hk_CalcRefdef(ref_params_t *pparams)
 	/* view roll has been applied, restore the settings */
 	pparams->movevars->rollangle = old_rollangle;
 	pparams->movevars->rollspeed = old_rollspeed;
+
+	if (xhair_no_recoil->value)
+	{
+		VectorClear(pparams->punchangle);
+	}
 
 	if (!pparams->intermission)
 	{
